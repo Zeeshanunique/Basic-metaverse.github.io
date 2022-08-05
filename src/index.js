@@ -1,16 +1,25 @@
-import movements from "./movements.js";
-import blockchain from "./web3.js";
+import Movements from "./movements.js";
+import blockchain from "./Web3.js";
 import abi from "./abi/abi.json" assert {type: "json"};
+import * as THREE from "three";
+import { OrbitControls, MapControls } from "../controls/OrbitControls.js";
+import { smart_contract_address } from "./contractparams.js";
+import { VRButton } from './VRButton.js';
 
-//Declaration of new scene with three.js
+// Declaration  of a new scene with Three.js
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xbfd1e5)
+scene.background = new THREE.Color(0xbfd1e5);
 
-//camera and render configuration
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+// Camera and renderer configuration
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+document.body.appendChild( VRButton.createButton( renderer ) );
+renderer.xr.enabled = true;
+
+// Orbit controls
+let controls = new OrbitControls(camera, renderer.domElement);
 
 // Setting the scene lights
 const ambient_light = new THREE.AmbientLight(0xbda355);
@@ -18,7 +27,7 @@ const direction_light = new THREE.DirectionalLight(0xffffff, 1);
 ambient_light.add(direction_light);
 scene.add(ambient_light)
 
-//set up a flat space of the metaverse
+// Setting up a flat space of the Metaverse
 const geometry_space = new THREE.BoxGeometry(100, 0.2, 50);
 const material_space = new THREE.MeshPhongMaterial({ color: 0xffffff });
 const space = new THREE.Mesh(geometry_space, material_space);
@@ -44,8 +53,15 @@ const cylinder = new THREE.Mesh(geometry_cylinder, material_cylinder);
 cylinder.position.set(20, 5, 0);
 scene.add(cylinder);
 
+window.addEventListener('resize', onWindowResize);
+
 camera.position.set(10, 5, 40);
-function animate() {
+
+function animate(){
+    renderer.setAnimationLoop(render);
+}
+
+function render() {
     cube.rotation.x += 0.05;
     cube.rotation.y += 0.05;
 
@@ -54,33 +70,39 @@ function animate() {
 
     cylinder.rotation.x += 0.05;
 
-	requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
+    controls.update();
     // Movement to the left
-    if (movements.isPressed(37)) {
+    if (Movements.isPressed(37)) {
         camera.position.x -= 0.5;
     }
     // Upward movement
-    if (movements.isPressed(38)) {
+    if (Movements.isPressed(38)) {
         camera.position.x += 0.5;
         camera.position.y += 0.5;
     }
     // Movement to the right
-    if (movements.isPressed(39)) {
+    if (Movements.isPressed(39)) {
         camera.position.x += 0.5;
     }
     // Downward movement
-    if (movements.isPressed(40)) {
+    if (Movements.isPressed(40)) {
         camera.position.x -= 0.5;
         camera.position.y -= 0.5;
     }
 
-    
-
     camera.lookAt(space.position);
     renderer.render(scene, camera);
 }
-
 animate();
+
+function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+}
 
 // New NFT
 const buttonMint = document.getElementById('mint');
@@ -103,7 +125,7 @@ function mintNFT() {
 
     // Web3 Instance 
     let web3 = new Web3(window.ethereum);
-    let contract = new web3.eth.Contract(abi, "0xd9145CCE52D386f254917e481eB44e9943F39138");
+    let contract = new web3.eth.Contract(abi, smart_contract_address);
 
     web3.eth.getAccounts().then((accounts) => {
         contract.methods.cost().call().then((cost_nft) => {
@@ -114,6 +136,26 @@ function mintNFT() {
     });
 };
 
+// Profit extraction
+const buttonProfit = document.getElementById('profit');
+buttonProfit.addEventListener('click', profitNFT);
+
+function profitNFT() {
+    // If Metamask is not available
+    if (typeof window.ethereum == "undefined") {
+        rej("You should install Metamask to use it!");
+    }
+
+    // Web3 Instance 
+    let web3 = new Web3(window.ethereum);
+    let contract = new web3.eth.Contract(abi, smart_contract_address);
+
+    web3.eth.getAccounts().then((accounts) => {
+        contract.methods.withdraw().send({from: accounts[0]}).then((data) => {
+            alert("Profit extraction!");
+        });
+    });
+};
 
 // Web3 connection to the data generated in the blockchain to be 
 // represented in the Metaverse
@@ -131,4 +173,3 @@ blockchain.then((result) => {
         };
     });
 });
-

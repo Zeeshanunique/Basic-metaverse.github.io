@@ -6,12 +6,11 @@ import "@openzeppelin/contracts@4.4.2/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts@4.4.2/access/Ownable.sol";
 import "@openzeppelin/contracts@4.4.2/utils/Counters.sol";
 
-//Address: 0xd9145CCE52D386f254917e481eB44e9943F39138
 // Creation of the Metaverse Smart Contract with NFT Tokens
 contract Metaverse is ERC721, Ownable {
     
     // Constructor 
-    constructor() ERC721("META", "MRG") {}
+    constructor() ERC721("META", "MJG") {}
 
     // Counters to regulate the current amount of NFT Tokens minted
     using Counters for Counters.Counter;
@@ -21,7 +20,7 @@ contract Metaverse is ERC721, Ownable {
     uint256 public maxSupply = 100;
 
     // Cost to be paid for each NFT Token
-    uint256 public cost = 1 ether;
+    uint256 public cost = 0.1 ether;
 
     // Owner and its properties in the Metaverse
     mapping (address => Building []) NFTOwners;

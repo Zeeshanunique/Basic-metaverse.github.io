@@ -1,7 +1,7 @@
-// import Web3 from "./web3"
-import abi from "../src/abi/abi.json" assert {type:"json"};
+import abi from "./abi/abi.json" assert {type: "json"};
+import {smart_contract_address} from "./contractparams.js";
 
-//Address: 0xd9145CCE52D386f254917e481eB44e9943F39138
+// SC:0x7cfe591ca28ed35cf765b2e5f89f475758690f17
 
 const blockchain = new Promise((res, rej) => {
 
@@ -12,7 +12,7 @@ const blockchain = new Promise((res, rej) => {
 
     // Web3 Instance 
     let web3 = new Web3(window.ethereum);
-    let contract = new web3.eth.Contract(abi, "0xd9145CCE52D386f254917e481eB44e9943F39138");
+    let contract = new web3.eth.Contract(abi, {smart_contract_address});
 
     // Get my Metamask address
     web3.eth.requestAccounts().then((accounts) =>{

@@ -18,5 +18,5 @@ class KeyMovements {
     }
 }
 
-const movements = new KeyMovements();
-export default movements;
+const Movements = new KeyMovements();
+export default Movements;
